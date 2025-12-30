@@ -1,0 +1,422 @@
+{
+  "info": {
+    "name": "Task Management API",
+    "description": "Colección completa para probar la API de gestión de tareas con autenticación JWT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Verificar que la API está funcionando. No requiere autenticación."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Save access token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"token\", jsonData.access_token);",
+                  "    console.log(\"Token guardado exitosamente\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/auth/login",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Autenticar usuario y obtener token JWT. El token se guarda automáticamente en la variable de entorno."
+          },
+          "response": []
+        }
+      ]
+    },
+    
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Get All Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks?page=1&page_size=10",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Número de página"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10",
+                  "description": "Tamaño de página (max 100)"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "description": "Filtrar por estado: pending, in_progress, done",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Obtener lista paginada de tareas. Soporta filtrado por estado."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Tasks - Pending Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks?status=pending",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            },
+            "description": "Obtener solo tareas pendientes"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Tasks - In Progress",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks?status=in_progress",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "in_progress"
+                }
+              ]
+            },
+            "description": "Obtener solo tareas en progreso"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks/1",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks", "1"]
+            },
+            "description": "Obtener una tarea específica por su ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task - Complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Nueva tarea desde Postman\",\n  \"description\": \"Esta es una tarea de prueba creada desde Postman\",\n  \"status\": \"pending\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks"]
+            },
+            "description": "Crear una nueva tarea con todos los campos"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task - Minimal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tarea rápida\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks"]
+            },
+            "description": "Crear una tarea con solo el título (campos mínimos)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task - Status Only",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks/1",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks", "1"]
+            },
+            "description": "Actualizar solo el estado de una tarea"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task - Complete",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tarea actualizada\",\n  \"description\": \"Descripción modificada desde Postman\",\n  \"status\": \"done\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks/1",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks", "1"]
+            },
+            "description": "Actualizar todos los campos de una tarea"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks/1",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks", "1"]
+            },
+            "description": "Eliminar una tarea por su ID"
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "Unauthorized Request (No Token)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks"]
+            },
+            "description": "Intentar acceder sin token - debería devolver 401"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"wrong@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/auth/login",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Intentar login con credenciales incorrectas - debería devolver 401"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Task - Missing Title",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Sin título\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks"]
+            },
+            "description": "Intentar crear tarea sin título - debería devolver 422"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Non-Existent Task",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_version}}/tasks/99999",
+              "host": ["{{base_url}}{{api_version}}"],
+              "path": ["tasks", "99999"]
+            },
+            "description": "Intentar obtener tarea que no existe - debería devolver 404"
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "api_version",
+      "value": "/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
